@@ -12,8 +12,12 @@ const awss3sbd_1 = require("./awss3sbd");
 const main = () => __awaiter(this, void 0, void 0, function* () {
     try {
         let db = new awss3sbd_1.AWS_S3_SBD('new_db', {});
-        let ret = yield db.openDB();
-        console.log(JSON.stringify(ret));
+        let ret = yield db.put('test1');
+        //  console.log(ret.body.DomainMetadata[0].Timestamp[0]);
+        yield ret.add('testAt', 123);
+        yield ret.add('test2', 'myhat');
+        let end = yield ret.end();
+        console.log(end.body);
     }
     catch (err) {
         console.log("error: " + err);

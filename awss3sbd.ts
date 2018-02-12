@@ -16,8 +16,8 @@ export class AWS_S3_SBD {
 
   }
 
-  public createDB = async () => {
-    return new Promise<any>(async (cb,rerr) => {
+  public create = async () => {
+    return new Promise<any>(async (cb, rerr) => {
       this.awsSDB = {
         'Action': 'CreateDomain',
         'DomainName': this.dbname,
@@ -26,7 +26,7 @@ export class AWS_S3_SBD {
 
       try {
 
-        cb(await this.sendSDB(await this.createOpts()));
+        cb(await this.sendSDB());
 
       } catch (err) {
         rerr(err);
@@ -35,8 +35,8 @@ export class AWS_S3_SBD {
     )
   };
 
-  public openDB = async () => {
-    return new Promise<any>(async (cb,rerr) => {
+  public open = async () => {
+    return new Promise<any>(async (cb, rerr) => {
       this.awsSDB = {
         'Action': 'DomainMetadata',
         'DomainName': this.dbname,
@@ -45,7 +45,7 @@ export class AWS_S3_SBD {
 
       try {
 
-        cb(await this.sendSDB(await this.createOpts()));
+        cb(await this.sendSDB());
 
       } catch (err) {
         rerr(err);
@@ -54,9 +54,53 @@ export class AWS_S3_SBD {
     )
   };
 
-  private sendSDB = (params: string) => {
-    return new Promise<any>((ret, err) => {
-      let jsonRet:any;
+  public put = (item: string) => {
+    return new Promise<any>(async (cb, rerr) => {
+      try {
+        let count = 0;
+        let internal = {
+          add: (name: string, value: string) => {
+            return new Promise<any>(async (cb, rerr) => {
+              count = count + 1;
+              this.awsSDB['Attribute.' + count + '.Name'] = name;
+              this.awsSDB['Attribute.' + count + '.Value'] = value;
+              this.awsSDB['Attribute.' + count + '.Replace'] = 'true';
+              console.log(this.awsSDB);
+              cb(null);
+            }
+            )
+          },
+
+          end: async () => {
+            return new Promise<any>(async (cb, rerr) => {
+              console.log('done');
+              cb(await this.sendSDB());
+
+            //  cb("done");
+            });
+          }
+        }
+        this.awsSDB = {
+          'Action': 'PutAttributes',
+          'DomainName': this.dbname,
+          'Version': '2009-04-15',
+          'ItemName': item
+        };
+        console.log(this.awsSDB);
+        cb(internal);
+
+      } catch (err) {
+        rerr(err);
+      }
+    }
+    )
+  };
+
+
+  private sendSDB = () => {
+    return new Promise<any>(async (ret, err) => {
+      let params = await this.createOpts()
+      let jsonRet: any;
       jsonRet = {};
       var sign = aws2.sign({
         'service': 'sdb',
@@ -66,20 +110,23 @@ export class AWS_S3_SBD {
       });
       //console.log(sign);
       const req = https.request(sign, (res) => {
-    //    console.log('statusCode:', res.statusCode);
-      jsonRet.statusCode = res.statusCode;
-      jsonRet.headers = res.headers;
-      //  console.log('headers:', res.headers);
+        //    console.log('statusCode:', res.statusCode);
+        jsonRet.statusCode = res.statusCode;
+        jsonRet.headers = res.headers;
+        //  console.log('headers:', res.headers);
         //  console.log(res);
         res.on('data', (d) => {
-          xmltojson.parseString(d.toString(), (err, result) => {
-            if(err){
-              jsonRet.error = err;
+          xmltojson.parseString(d.toString(),{ explicitArray : false, ignoreAttrs : true },(err, result) => {
+           if (err) {
+            jsonRet.error = err;
               err(jsonRet);
-            }
+           }
             jsonRet.body = result;
+          //    'DomainMetadata': result.DomainMetadataResponse.DomainMetadataResult,
+        //      'ResponseMetadata': result.DomainMetadataResponse.ResponseMetadata
+           //}
             ret(jsonRet);
-          });
+         });
         });
       });
       req.write(sign['body']);

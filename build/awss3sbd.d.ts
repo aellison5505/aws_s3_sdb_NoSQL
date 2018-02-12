@@ -5,8 +5,9 @@ export declare class AWS_S3_SBD {
     awsCreds: object;
     awsSDB: any;
     constructor(db: string, options: any);
-    createDB: () => Promise<any>;
-    openDB: () => Promise<any>;
+    create: () => Promise<any>;
+    open: () => Promise<any>;
+    put: (item: string) => Promise<any>;
     private sendSDB;
     private createOpts;
 }
