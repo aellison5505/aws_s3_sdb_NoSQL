@@ -16,7 +16,7 @@ export class AWS_S3_SBD {
 
   }
 
-  public create = async () => {
+  public create = () => {
     return new Promise<any>(async (cb, rerr) => {
       this.awsSDB = {
         'Action': 'CreateDomain',
@@ -35,7 +35,7 @@ export class AWS_S3_SBD {
     )
   };
 
-  public open = async () => {
+  public open = () => {
     return new Promise<any>(async (cb, rerr) => {
       this.awsSDB = {
         'Action': 'DomainMetadata',
@@ -54,13 +54,52 @@ export class AWS_S3_SBD {
     )
   };
 
-  public put = (item: string) => {
+  public get = (item:string) => {
     return new Promise<any>(async (cb, rerr) => {
+      this.awsSDB = {
+        'Action': 'GetAttributes',
+        'DomainName': this.dbname,
+        'Version': '2009-04-15',
+        'ItemName':item
+      };
+
+      try {
+
+        cb(await this.sendSDB());
+
+      } catch (err) {
+        rerr(err);
+      }
+    }
+    )
+  };
+
+  public select = (expression:string) => {
+    return new Promise<any>(async (cb, rerr) => {
+      this.awsSDB = {
+        'Action': 'Select',
+        'Version': '2009-04-15',
+        'SelectExpression':expression
+      };
+
+      try {
+
+        cb(await this.sendSDB());
+
+      } catch (err) {
+        rerr(err);
+      }
+    }
+    )
+  };
+
+  public put = (item: string) => {
+    return new Promise<any>((cb, rerr) => {
       try {
         let count = 0;
         let internal = {
           add: (name: string, value: string) => {
-            return new Promise<any>(async (cb, rerr) => {
+            return new Promise<any>((cb, rerr) => {
               count = count + 1;
               this.awsSDB['Attribute.' + count + '.Name'] = name;
               this.awsSDB['Attribute.' + count + '.Value'] = value;
@@ -76,7 +115,7 @@ export class AWS_S3_SBD {
               console.log('done');
               cb(await this.sendSDB());
 
-            //  cb("done");
+              //  cb("done");
             });
           }
         }
@@ -108,26 +147,32 @@ export class AWS_S3_SBD {
         'path': '/',
         'body': params
       });
-      //console.log(sign);
+        console.log(sign);
+      //sign.body = sign.body.replace("*","\%2A");
+      sign.body = sign.body.replace(/[*]/g, function(ch:any) { return '%' + ch.charCodeAt(0).toString(16).toUpperCase();
+   });
+    console.log(sign);
       const req = https.request(sign, (res) => {
         //    console.log('statusCode:', res.statusCode);
         jsonRet.statusCode = res.statusCode;
         jsonRet.headers = res.headers;
+        let data = '';
         //  console.log('headers:', res.headers);
         //  console.log(res);
         res.on('data', (d) => {
-          xmltojson.parseString(d.toString(),{ explicitArray : false, ignoreAttrs : true },(err, result) => {
-           if (err) {
-            jsonRet.error = err;
-              err(jsonRet);
-           }
-            jsonRet.body = result;
-          //    'DomainMetadata': result.DomainMetadataResponse.DomainMetadataResult,
-        //      'ResponseMetadata': result.DomainMetadataResponse.ResponseMetadata
-           //}
-            ret(jsonRet);
-         });
+          data += d;
         });
+        res.on('end', () => {
+          xmltojson.parseString(data.toString(), { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+            if (err) {
+              jsonRet.error = err;
+              err(jsonRet);
+            }
+            jsonRet.body = result;
+            ret(jsonRet);
+          });
+        });
+
       });
       req.write(sign['body']);
       req.on('error', (e) => {
@@ -140,10 +185,10 @@ export class AWS_S3_SBD {
 
   private createOpts = () => {
     return new Promise<string>((ret) => {
-      ret(Object.keys(this.awsSDB).sort().map((key) => {
-        return querystring.escape(key) + '=' + querystring.escape(this.awsSDB[key])
+    ret(Object.keys(this.awsSDB).sort().map((key) => {
+        return key + '=' +this.awsSDB[key];
       }).join('&'));
-    });
+  });
   }
 
 }
