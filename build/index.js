@@ -20,7 +20,7 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
               let end = await ret.end();
               console.log(end.body);
         */
-        let ret = yield db.select('select ItemName from new_db');
+        let ret = yield db.select('select * from new_db');
         //console.log(ret.body.GetAttributesResponse.GetAttributesResult);
         console.log(JSON.stringify(ret.body));
     }

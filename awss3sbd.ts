@@ -2,6 +2,7 @@ import * as https from 'https'
 import * as aws2 from 'aws2'
 import * as querystring from 'querystring'
 import * as xmltojson from 'xml2js'
+import {promisify} from './promisify'
 
 export class AWS_S3_SBD {
 
@@ -104,7 +105,7 @@ export class AWS_S3_SBD {
               this.awsSDB['Attribute.' + count + '.Name'] = name;
               this.awsSDB['Attribute.' + count + '.Value'] = value;
               this.awsSDB['Attribute.' + count + '.Replace'] = 'true';
-              console.log(this.awsSDB);
+              //console.log(this.awsSDB);
               cb(null);
             }
             )
@@ -125,7 +126,7 @@ export class AWS_S3_SBD {
           'Version': '2009-04-15',
           'ItemName': item
         };
-        console.log(this.awsSDB);
+      //  console.log(this.awsSDB);
         cb(internal);
 
       } catch (err) {
@@ -147,10 +148,8 @@ export class AWS_S3_SBD {
         'path': '/',
         'body': params
       });
-        console.log(sign);
-      //sign.body = sign.body.replace("*","\%2A");
-      sign.body = sign.body.replace(/[*]/g, function(ch:any) { return '%' + ch.charCodeAt(0).toString(16).toUpperCase();
-   });
+      //  console.log(sign);
+
     console.log(sign);
       const req = https.request(sign, (res) => {
         //    console.log('statusCode:', res.statusCode);

@@ -87,7 +87,7 @@ class AWS_S3_SBD {
                                 this.awsSDB['Attribute.' + count + '.Name'] = name;
                                 this.awsSDB['Attribute.' + count + '.Value'] = value;
                                 this.awsSDB['Attribute.' + count + '.Replace'] = 'true';
-                                console.log(this.awsSDB);
+                                //console.log(this.awsSDB);
                                 cb(null);
                             });
                         },
@@ -105,7 +105,7 @@ class AWS_S3_SBD {
                         'Version': '2009-04-15',
                         'ItemName': item
                     };
-                    console.log(this.awsSDB);
+                    //  console.log(this.awsSDB);
                     cb(internal);
                 }
                 catch (err) {
@@ -124,11 +124,7 @@ class AWS_S3_SBD {
                     'path': '/',
                     'body': params
                 });
-                console.log(sign);
-                //sign.body = sign.body.replace("*","\%2A");
-                sign.body = sign.body.replace(/[*]/g, function (ch) {
-                    return '%' + ch.charCodeAt(0).toString(16).toUpperCase();
-                });
+                //  console.log(sign);
                 console.log(sign);
                 const req = https.request(sign, (res) => {
                     //    console.log('statusCode:', res.statusCode);
