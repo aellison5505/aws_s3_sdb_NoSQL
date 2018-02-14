@@ -1,10 +1,10 @@
-import { AWS_S3_SBD } from './awss3sbd';
+import { SBD } from './sdb';
 
 const main = async () => {
 
   try {
 
-    let db = new AWS_S3_SBD('new_db', {});
+    let db = new SBD('new_db', {});
 /*
     let ret = await db.put('test1');
   //  console.log(ret.body.DomainMetadata[0].Timestamp[0]);
@@ -18,7 +18,7 @@ const main = async () => {
       console.log(JSON.stringify(ret.body));
   } catch (err) {
 
-    console.log("error: " + err.body);
+    console.log("error: " + err.error);
 
   }
 

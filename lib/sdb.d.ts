@@ -1,4 +1,4 @@
-export declare class AWS_S3_SBD {
+export declare class SBD {
     private db;
     private options;
     dbname: string;

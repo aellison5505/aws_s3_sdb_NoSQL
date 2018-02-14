@@ -1,10 +1,9 @@
 import * as https from 'https'
-import * as aws2 from 'aws2'
-import * as querystring from 'querystring'
+import * as aws2 from 'aws-sign-v2'
 import * as xmltojson from 'xml2js'
-import {promisify} from './promisify'
+import * as prom from './promisify'
 
-export class AWS_S3_SBD {
+export class SBD {
 
   dbname: string;
   awsCreds: object;
@@ -137,7 +136,7 @@ export class AWS_S3_SBD {
   };
 
 
-  private sendSDB = () => {
+  private sendSDB  = () => {
     return new Promise<any>(async (ret, err) => {
       let params = await this.createOpts()
       let jsonRet: any;
@@ -175,7 +174,7 @@ export class AWS_S3_SBD {
       });
       req.write(sign['body']);
       req.on('error', (e) => {
-        jsonRet.error = e.message;
+        jsonRet.error = e;
         err(jsonRet);
       });
       req.end();
