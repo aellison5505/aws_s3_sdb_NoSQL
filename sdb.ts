@@ -35,6 +35,29 @@ export class SBD {
     )
   };
 
+  public destroy = (NameDB:string) => {
+    return new Promise<any>(async (cb, rerr) => {
+      if (this.awsSDB !== NameDB){
+        rerr('DB Names Don\'t Match');
+      }
+      this.awsSDB = {
+        'Action': 'DeleteDomain',
+        'DomainName': this.dbname,
+        'Version': '2009-04-15'
+      };
+
+      try {
+
+        cb(await this.sendSDB());
+
+      } catch (err) {
+        rerr(err);
+      }
+    }
+    )
+  };
+
+
   public open = () => {
     return new Promise<any>(async (cb, rerr) => {
       this.awsSDB = {
@@ -92,6 +115,49 @@ export class SBD {
     }
     )
   };
+
+  public delete = (item: string) => {
+    return new Promise<any>((cb, rerr) => {
+      try {
+        let count = 0;
+        let internal = {
+          add: (name: string, value: string) => {
+            return new Promise<any>((cb, rerr) => {
+              count = count + 1;
+              this.awsSDB['Attribute.' + count + '.Name'] = name;
+              this.awsSDB['Attribute.' + count + '.Value'] = value;
+              this.awsSDB['Attribute.' + count + '.Replace'] = 'true';
+              //console.log(this.awsSDB);
+              cb(null);
+            }
+            )
+          },
+
+          end: async () => {
+            return new Promise<any>(async (cb, rerr) => {
+              console.log('done');
+              cb(await this.sendSDB());
+
+              //  cb("done");
+            });
+          }
+        }
+        this.awsSDB = {
+          'Action': 'DeleteAttributes',
+          'DomainName': this.dbname,
+          'Version': '2009-04-15',
+          'ItemName': item
+        };
+      //  console.log(this.awsSDB);
+        cb(internal);
+
+      } catch (err) {
+        rerr(err);
+      }
+    }
+    )
+  };
+
 
   public put = (item: string) => {
     return new Promise<any>((cb, rerr) => {
