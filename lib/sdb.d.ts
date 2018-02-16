@@ -1,13 +1,13 @@
 export declare class SBD {
-    private db;
     private options;
     dbname: string;
     awsCreds: object;
     awsSDB: any;
-    constructor(db: string, options: any);
-    create: () => Promise<any>;
+    constructor(options?: any);
+    create: (db: string) => Promise<any>;
+    ListDomains: () => Promise<any>;
     destroy: (NameDB: string) => Promise<any>;
-    open: () => Promise<any>;
+    open: (db: string) => Promise<any>;
     get: (item: string) => Promise<any>;
     select: (expression: string) => Promise<any>;
     delete: (item: string) => Promise<any>;

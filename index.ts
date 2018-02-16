@@ -4,21 +4,22 @@ const main = async () => {
 
   try {
 
-    let db = new SBD('new_db', {});
-/*
-    let ret = await db.put('test1');
+    let db = new SBD();
+//  let opn = await db.open('myDomain')
+//  console.log(JSON.stringify(opn.body));
+  let ret = await db.ListDomains();
   //  console.log(ret.body.DomainMetadata[0].Timestamp[0]);
-      await ret.add('testAt', 123);
-      await ret.add('test2', 'myhat');
-      let end = await ret.end();
-      console.log(end.body);
-*/
-      let ret = await db.select('select * from new_db');
+  //    await ret.add('testAt');
+  //    await ret.add('test2', 'myhat');
+  //    let end = await ret.end();
+     console.log(JSON.stringify(ret.body));
+
+  //    let sel = await db.select('select * from *');
       //console.log(ret.body.GetAttributesResponse.GetAttributesResult);
-      console.log(JSON.stringify(ret.body));
+  //    console.log(JSON.stringify(sel.body));
   } catch (err) {
 
-    console.log("error: " + err.error);
+    console.log("error: " + err);
 
   }
 

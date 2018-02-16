@@ -9,18 +9,38 @@ export class SBD {
   awsCreds: object;
   awsSDB: any;
 
-  constructor(private db: string, private options: any) {
-    this.dbname = db;
+  constructor(private options?: any) {
+    this.dbname = '';
     this.awsCreds = options;
     this.awsSDB = {};
 
   }
 
-  public create = () => {
+  public create = (db: string) => {
     return new Promise<any>(async (cb, rerr) => {
+      this.dbname = db;
       this.awsSDB = {
         'Action': 'CreateDomain',
         'DomainName': this.dbname,
+        'Version': '2009-04-15'
+      };
+
+      try {
+
+        cb(await this.sendSDB());
+
+      } catch (err) {
+        rerr(err);
+      }
+    }
+    )
+  };
+
+  public ListDomains = () => {
+    return new Promise<any>(async (cb, rerr) => {
+      this.awsSDB = {
+        'Action': 'ListDomains',
+    //    'DomainName': this.dbname,
         'Version': '2009-04-15'
       };
 
@@ -58,8 +78,9 @@ export class SBD {
   };
 
 
-  public open = () => {
+  public open = (db: string) => {
     return new Promise<any>(async (cb, rerr) => {
+      this.dbname = db;
       this.awsSDB = {
         'Action': 'DomainMetadata',
         'DomainName': this.dbname,
@@ -121,12 +142,12 @@ export class SBD {
       try {
         let count = 0;
         let internal = {
-          add: (name: string, value: string) => {
+          add: (name: string) => {
             return new Promise<any>((cb, rerr) => {
               count = count + 1;
               this.awsSDB['Attribute.' + count + '.Name'] = name;
-              this.awsSDB['Attribute.' + count + '.Value'] = value;
-              this.awsSDB['Attribute.' + count + '.Replace'] = 'true';
+          //    this.awsSDB['Attribute.' + count + '.Value'] = value;
+        //      this.awsSDB['Attribute.' + count + '.Replace'] = 'true';
               //console.log(this.awsSDB);
               cb(null);
             }
