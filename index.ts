@@ -12,7 +12,7 @@ const main = async () => {
   //    await ret.add('testAt');
   //    await ret.add('test2', 'myhat');
   //    let end = await ret.end();
-     console.log(JSON.stringify(ret.body));
+     console.log(JSON.stringify(ret));
 
   //    let sel = await db.select('select * from *');
       //console.log(ret.body.GetAttributesResponse.GetAttributesResult);

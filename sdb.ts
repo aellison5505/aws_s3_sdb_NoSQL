@@ -2,6 +2,7 @@ import * as https from 'https'
 import * as aws2 from 'aws-sign-v2'
 import * as xmltojson from 'xml2js'
 import * as prom from './promisify'
+import {httpPromise} from './httpsPromise'
 
 export class SBD {
 
@@ -45,8 +46,13 @@ export class SBD {
       };
 
       try {
-
-        cb(await this.sendSDB());
+        let params = await this.createParams()
+      //  cb(params);
+      //  cb(await this.sendSDB());
+        let https = new httpPromise()
+        let body = params.body;
+        delete params.body;
+        cb(await https.send(params, body));
 
       } catch (err) {
         rerr(err);
@@ -266,6 +272,24 @@ export class SBD {
       });
       req.end();
     });
+  }
+
+  private createParams (){
+    return new Promise<any>(async (cb, rerr) => {
+    try{
+    let params = await this.createOpts();
+    var sign = aws2.sign ({
+      'service': 'sdb',
+      'port': 443,
+      'path': '/',
+      'body': params
+    });
+    cb(sign);
+  }catch(err){
+    rerr(err);
+  }
+
+  });
   }
 
   private createOpts = () => {

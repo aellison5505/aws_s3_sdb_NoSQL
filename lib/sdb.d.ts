@@ -13,5 +13,6 @@ export declare class SBD {
     delete: (item: string) => Promise<any>;
     put: (item: string) => Promise<any>;
     private sendSDB;
+    private createParams();
     private createOpts;
 }
